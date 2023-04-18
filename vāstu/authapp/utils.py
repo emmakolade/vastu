@@ -1,10 +1,4 @@
-from django.core.mail import EmailMultiAlternatives
-from django.utils.html import strip_tags
-from django.template.loader import render_to_string
-from sendgrid.helpers.mail import Mail
-from sendgrid import SendGridAPIClient
-import os
-from django.core.mail import EmailMessage, get_connection, send_mail
+from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 import random
