@@ -9,7 +9,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="vāstu(Real Estate App)",
+        title="Vāstu - Real Estate App",
         default_version='v1',
         description="this is an app that allows property owners to lsit their properies for sale or rent.",
         terms_of_service="https://www.google.com/policies/terms/",
@@ -24,4 +24,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('authapp/', include('aut'))
+    path('', schema_view.with_ui('swagger',
+                                 cache_timeout=0), name='schema-swagger-ui'),
+
+
 ]

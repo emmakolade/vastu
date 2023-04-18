@@ -25,11 +25,12 @@ class OwnerUserManager(BaseUserManager):
         return create
 
 
-class Owner(AbstractBaseUser, PermissionsMixin):
+class OwnerUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=300)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
     phone_number = models.CharField(max_length=20, blank=False)
+    sex = models.CharField(max_length=50, blank=True)
     otp = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -84,11 +85,12 @@ class BuyerUserManager(OwnerUserManager):
         return create
 
 
-class Buyer(AbstractBaseUser, PermissionsMixin):
+class BuyerUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=300)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
     phone_number = models.CharField(max_length=20, blank=False)
+    sex = models.CharField(max_length=50, blank=True)
     otp = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
