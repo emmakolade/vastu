@@ -2,20 +2,24 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
 
 import jwt
-from .models import BuyerUser, OwnerUser
+from .models import User
 
 
-class OwnerUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=150, min_length=8, write_only=True)
     confirm_password = serializers.CharField(
         max_length=150, min_length=8, write_only=True)
 
     class Meta:
-        model = OwnerUser
-        fields = ('id', 'email', 'username', 'full_name',
+        model = User
+        fields = ('id', 'full_name', 'email', 'username',
                   'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
         read_only_fields = ('id', 'otp',)
 
@@ -23,7 +27,7 @@ class OwnerUserSerializer(serializers.ModelSerializer):
         if attrs.get('password') != attrs.get('confirm_password'):
             raise serializers.ValidationError('password do not match')
 
-        if OwnerUser.objects.filter(email=attrs['email']).exists():
+        if User.objects.filter(email=attrs['email']).exists():
             raise serializers.ValidationError('Email address already exists')
 
         return attrs
@@ -35,14 +39,95 @@ class OwnerUserSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise serializers.ValidationError('password do not match')
 
-        owner = OwnerUser.objects.create_user(
+        user = User.objects.create_user(
             **validated_data, password=password)
-        return owner
+        return user
 
 
-class BuyerUserSerializer(OwnerUserSerializer):
-    class Meta:
-        model = BuyerUser
-        fields = ('id', 'email', 'username', 'full_name',
-                  'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
-        read_only_fields = ('id', 'otp',)
+class OTPSerializer(serializers.Serializer):
+    otp = serializers.IntegerField(min_value=000000)
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def validators(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if email and password:
+            user = authenticate(
+                request=self.context.get('request'),
+                email=email,
+                password=password,
+            )
+
+            if not user:
+                raise serializers.ValidationError('invalid email and password')
+
+        else:
+            raise serializers.ValidationError(
+                'Email and password are required')
+        attrs['user'] = user
+        return attrs
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not (User.objects.filter(Q(email=value))).exists():
+            raise serializers.ValidationError('email address not found')
+        return value
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        max_length=150,
+        min_length=8,
+        write_only=True,
+        error_messages={
+            'min_length': 'password must be at least 8 characters long.', }
+    )
+    confirm_password = serializers.CharField(
+        max_length=150,
+        min_length=8,
+        write_only=True,
+        error_messages={
+            'min_length': 'password must be at least 8 characters long.', }
+    )
+    token = serializers.CharField()
+
+    def validate(self, attrs):
+        if attrs.get('password') != attrs.get('confirm_password'):
+            raise serializers.ValidationError('passowrds do not match')
+        token = attrs.get('token')
+
+        try:
+            payload = jwt.decode(
+                token,
+                settings.SECRET_KEY,
+                algorithms=['HS256']
+            )
+            user_id = payload['user_id']
+            user = get_object_or_404(
+                (User, BuyerUser),
+                id=user_id
+            )
+            if not user.is_active:
+                raise serializers.ValidationError('your account is inactive')
+            if payload.get('type') != 'reset_password':
+                raise serializers.ValidationError('invalid token')
+            if payload.get('exp') is not None and timezone.now() > timezone.datetime.fromtimestamp(payload['exp']):
+                raise serializers.ValidationError('token has expired')
+        except jwt.exceptions.DecodeError:
+            raise serializers.ValidationError('invalid token')
+        attrs['user'] = user
+        return attrs
+
+    def save(self, **kwargs):
+        password = self.validated_data['password']
+        user = self.validated_data['user']
+        user.set_password(password)
+        user.save()

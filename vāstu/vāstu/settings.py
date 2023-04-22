@@ -137,11 +137,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-AUTH_USER_MODEL = 'authapp.OwnerUser'
+AUTH_USER_MODEL = 'authapp.User'
 
 AUTHENTICATION_BACKEND = [
     'authapp.backends.OwnerAuthenticationBackend',
-    'authapp.backends.BuyerAuthenticationBackedn',
+    'authapp.backends.BuyerAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
