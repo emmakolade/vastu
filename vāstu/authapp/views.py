@@ -2,25 +2,26 @@ from django.shortcuts import render
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
-from .serializers import UserSerializer, OTPSerializer, LoginSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer
+from .models import User, OwnerUser, BuyerUser
+from .serializers import OwnerUserSerializer, BuyerUserSerializer, OTPSerializer, LoginSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer
 from .utils import generate_otp, send_otp, send_welcome_email, send_password_reset_email, send_password_reset_confirmation_email
 
 from django.shortcuts import get_object_or_404
 
 
 class RegisterOwnerView(generics.CreateAPIView):
-    queryset = User.objects.none()
-    serializer_class = UserSerializer
+    queryset = OwnerUser.objects.none()
+    serializer_class = OwnerUserSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()
+        user.is_property_owner = True
+
         otp = generate_otp()
         send_otp(user.email, otp)
 
         user.otp = otp
         user.is_active = False
-        user.is_property_owner = True
         user.save()
 
         response_data = {
@@ -36,10 +37,13 @@ class RegisterOwnerView(generics.CreateAPIView):
 
 
 class RegisterBuyerView(RegisterOwnerView):
-    serializer_class = UserSerializer
+    queryset = BuyerUser.objects.none()
+    serializer_class = BuyerUserSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()
+        user.is_buyer = True
+
         otp = generate_otp()
         send_otp(user.email, otp)
 
@@ -52,7 +56,6 @@ class RegisterBuyerView(RegisterOwnerView):
 class VerifyOTPView(generics.UpdateAPIView):
     serializer_class = OTPSerializer
     queryset = User.objects.none()
-
 
     def get_object(self):
         return get_object_or_404(User, pk=self.kwargs.get('pk'))
@@ -100,7 +103,7 @@ class PasswordResetView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
-        user = user = get_object_or_404(
+        user = get_object_or_404(
             User,
             email=email,
         )

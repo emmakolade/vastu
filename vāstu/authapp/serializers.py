@@ -8,17 +8,17 @@ from django.utils import timezone
 
 
 import jwt
-from .models import User
+from .models import User, OwnerUser, BuyerUser
 
 
-class UserSerializer(serializers.ModelSerializer):
+class OwnerUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=150, min_length=8, write_only=True)
     confirm_password = serializers.CharField(
         max_length=150, min_length=8, write_only=True)
 
     class Meta:
-        model = User
+        model = OwnerUser
         fields = ('id', 'full_name', 'email', 'username',
                   'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
         read_only_fields = ('id', 'otp',)
@@ -44,6 +44,14 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class BuyerUserSerializer(OwnerUserSerializer):
+    class Meta:
+        model = BuyerUser
+        fields = ('id', 'full_name', 'email', 'username',
+                  'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
+        read_only_fields = ('id', 'otp',)
+
+
 class OTPSerializer(serializers.Serializer):
     otp = serializers.IntegerField(min_value=000000)
 
@@ -52,23 +60,20 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validators(self, attrs):
+    def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
 
         if email and password:
-            user = authenticate(
-                request=self.context.get('request'),
-                email=email,
-                password=password,
-            )
+            user = authenticate(request=self.context.get(
+                'request'), email=email, password=password)
 
             if not user:
-                raise serializers.ValidationError('invalid email and password')
-
+                raise serializers.ValidationError('Invalid email or password')
         else:
             raise serializers.ValidationError(
                 'Email and password are required')
+
         attrs['user'] = user
         return attrs
 
