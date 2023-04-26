@@ -1,7 +1,9 @@
-# vāstu 
+# vāstu
+
 vāstu(means dwelling or House) : is an API/app that allows property owners to list their properties either for sale or rent
 
 ### features to be implemented:
+
 - Property Listings: Allow users to browse and search through a database of properties. Users should be able to filter properties by location, price, size, number of bedrooms, and other relevant parameters.
 
 - Property Details: Provide users with detailed information about each property. This should include high-quality photos, floor plans, property descriptions, and any other relevant details.

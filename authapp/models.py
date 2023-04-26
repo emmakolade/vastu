@@ -53,26 +53,32 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 
-
-
-class OwnerUser(models.Model):
-    owner = models.OneToOneField(User, on_delete= models.CASCADE)
-    full_name = models.CharField(max_length=300)
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=30, unique=True)
-    phone_number = models.CharField(max_length=20, blank=False)
-    sex = models.CharField(max_length=50, blank=True)
-    otp = models.IntegerField(blank=True, null=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'username', 'phone_number']
-    
+class OwnerUser(User):
     class Meta:
         verbose_name_plural = "Property Owners"
-class BuyerUser(OwnerUser):
-    buyer = models.OneToOneField(User, on_delete= models.CASCADE)
+
+
+class BuyerUser(User):
     class Meta:
         verbose_name_plural = "Buyers"
 
+# class OwnerUser(models.Model):
+#     owner = models.OneToOneField(User, on_delete= models.CASCADE)
+#     full_name = models.CharField(max_length=300)
+#     email = models.EmailField(unique=True)
+#     username = models.CharField(max_length=30, unique=True)
+#     phone_number = models.CharField(max_length=20, blank=False)
+#     sex = models.CharField(max_length=50, blank=True)
+#     otp = models.IntegerField(blank=True, null=True)
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = ['full_name', 'username', 'phone_number']
+
+#     class Meta:
+#         verbose_name_plural = "Property Owners"
+# class BuyerUser(OwnerUser):
+#     buyer = models.OneToOneField(User, on_delete= models.CASCADE)
+#     class Meta:
+#         verbose_name_plural = "Buyers"
 
 
 # class BuyerUserManager(OwnerUserManager):

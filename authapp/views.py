@@ -15,13 +15,14 @@ class RegisterOwnerView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        user.is_property_owner = True
-
+        
         otp = generate_otp()
         send_otp(user.email, otp)
 
         user.otp = otp
         user.is_active = False
+        
+        user.is_property_owner = True
         user.save()
 
         response_data = {
@@ -42,7 +43,6 @@ class RegisterBuyerView(RegisterOwnerView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        user.is_buyer = True
 
         otp = generate_otp()
         send_otp(user.email, otp)
