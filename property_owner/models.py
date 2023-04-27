@@ -43,12 +43,12 @@ class PropertyListing(models.Model):
     property_status = models.CharField(max_length=8, choices=PROPERTY_STATUS)
     property_occupancy = models.CharField(
         max_length=8, choices=PROPERTY_OCUPPANCY)
-    photo_1 = models.ImageField(upload_to='/photos', blank=True)
-    photo_2 = models.ImageField(upload_to='/photos', blank=True)
-    photo_3 = models.ImageField(upload_to='/photos', blank=True)
-    photo_4 = models.ImageField(upload_to='/photos', blank=True)
-    photo_5 = models.ImageField(upload_to='/photos', blank=True)
-    photo_6 = models.ImageField(upload_to='/photos', blank=True)
+    photo_1 = models.ImageField(upload_to='photos/', blank=True)
+    photo_2 = models.ImageField(upload_to='photos/', blank=True)
+    photo_3 = models.ImageField(upload_to='photos/', blank=True)
+    photo_4 = models.ImageField(upload_to='photos/', blank=True)
+    photo_5 = models.ImageField(upload_to='photos/', blank=True)
+    photo_6 = models.ImageField(upload_to='photos/', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
