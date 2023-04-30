@@ -6,6 +6,7 @@ from .models import PropertyOwnerProfile, PropertyListing
 from .serializers import PropertyLisitingSerializer, PropertyOwnerProfileSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
+from django.db.models import Q
 
 
 # OWNER PROFILE
@@ -60,7 +61,6 @@ def edit_owner_profile(request):
 
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # PROPERTY LISTING
@@ -127,6 +127,62 @@ def update_property_unit(profile):
         property_owner=profile).count()
     profile.property_unit = property_count
     profile.save()
+
+
+@swagger_auto_schema(method='GET',)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def property_list(request):
+    queryset = PropertyListing.objects.all()
+
+    # filter properties by various attrs
+    property_title = request.query_params.get('property_title', None)
+    if property_title:
+        queryset = queryset.filter(property_title__icontains=property_title)
+    
+    property_city = request.query_params.get('property_city', None)
+    if property_city:
+        queryset = queryset.filter(property_city__iexact=property_city)
+    
+    property_state = request.query_params.get('property_state', None)
+    if property_state:
+        queryset = queryset.filter(property_state__iexact=property_state)
+        
+    property_description = request.query_params.get(
+        'property_description', None)
+    if property_description:
+        queryset = queryset.filter(
+            property_description__icontains=property_description)
+        
+    property_price = request.query_params.get('property_price', None)
+    if property_price:
+        queryset = queryset.filter(property_price__startswith=property_price)
+        
+    num_of_bathrooms = request.query_params.get('num_of_bathrooms', None)
+    if num_of_bathrooms:
+        queryset = queryset.filter(num_of_bathrooms__startswith=num_of_bathrooms)
+    
+    num_of_bedrooms = request.query_params.get('num_of_bedrooms', None)
+    if num_of_bedrooms:
+        queryset = queryset.filter(
+            num_of_bedrooms__startswith=num_of_bedrooms)
+    
+    property_status = request.query_params.get('property_status', None)
+    if property_status:
+        queryset = queryset.filter(property_status__iexact=property_status)
+
+    property_occupancy = request.query_params.get('property_occupancy', None)
+    if property_occupancy:
+        queryset = queryset.filter(
+            property_occupancy__iexact=property_occupancy)
+        
+    serializer = PropertyLisitingSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+
+
+
+
 
 # class PropertyOwnerProfileView(generics.UpdateAPIView):
 #     serializer_class = PropertyOwnerProfileSerializer

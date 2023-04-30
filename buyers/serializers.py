@@ -16,9 +16,9 @@ class BuyerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuyerProfile
         fields = ('buyer_user', 'full_name', 'email', 'username', 'phone_number', 'sex', 'profile_picture',
-                  'bio', 'address', 'property_unit', 'facebook_profile', 'twitter_profile', 'instagram_profile', 'full_name', 'email', 'username', 'phone_number', 'sex',)
+                  'bio', 'address', 'facebook_profile', 'twitter_profile', 'instagram_profile', 'full_name', 'email', 'username', 'phone_number', 'sex',)
         read_only_fields = ('buyer_user', 'email',
-                            'username', 'property_unit',)
+                            'username',)
 
     def update(self, instance, validated_data):
         buyer_user_data = validated_data.pop('buyer_user', None)

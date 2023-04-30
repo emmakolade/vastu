@@ -10,11 +10,10 @@ vāstu(means dwelling or House) : is an API/app that allows property owners to l
 
 - Property Management: Allow property owners to create listings for their properties, manage their listings, and update information such as price and availability. - Done :white_check_mark:
 
-- Property Analytics: Provide users with insights into market trends, such as average prices, rent trends, and occupancy rates. This can help users make informed decisions about buying or renting properties.
 
-- User Accounts: Allow users to create accounts, save their favorite properties, and receive alerts when new properties that meet their criteria are added to the database.
+- Buyers Accounts: Allow users to create accounts, save their favorite properties, and receive alerts when new properties that meet their criteria are added to the database.
 
-- Communication: Implement a messaging system that allows users to communicate with property owners and real estate agents directly through the app.
+- Communication: Implement a messaging system that allows users to communicate with property owners through the app.
 
 - Reviews and Ratings: Allow users to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy.
 
