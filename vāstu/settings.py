@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -147,7 +148,7 @@ AUTHENTICATION_BACKEND = [
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
@@ -162,4 +163,14 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     },
+}
+
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'JWT_ALGORITHM': 'HS256',
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }

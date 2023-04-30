@@ -5,23 +5,55 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, OwnerUser, BuyerUser
 from .serializers import OwnerUserSerializer, BuyerUserSerializer, OTPSerializer, LoginSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer
 from .utils import generate_otp, send_otp, send_welcome_email, send_password_reset_email, send_password_reset_confirmation_email
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+
+from property_owner.serializers import PropertyOwnerProfileSerializer
 
 from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
+
+
+@swagger_auto_schema(method='POST', request_body=OwnerUserSerializer)
+@api_view(['POST'])
+def register_owner_view(request):
+    serializer = OwnerUserSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        
+        profile_data = {'owner_user': user.id}
+        profile_serializer = PropertyOwnerProfileSerializer(data=profile_data)
+        if profile_serializer.is_valid():
+            profile = profile_serializer.save()
+        else:
+            user.delete()
+            return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+        response_data = {
+            'id': user.id,
+            'full_name': user.full_name,
+            'email': user.email,
+            'username': user.username,
+            'phone_number': user.phone_number,
+            'sex': user.sex,
+            # 'otp': user.otp,
+        }
+ 
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterOwnerView(generics.CreateAPIView):
-    queryset = OwnerUser.objects.none()
     serializer_class = OwnerUserSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()
-        user.is_property_owner = True
 
-        otp = generate_otp()
-        send_otp(user.email, otp)
+        # otp = generate_otp()
+        # send_otp(user.email, otp)
 
-        user.otp = otp
-        user.is_active = False
+        # user.otp = otp
+        # user.is_active = False
         user.save()
 
         response_data = {
@@ -31,7 +63,7 @@ class RegisterOwnerView(generics.CreateAPIView):
             'username': user.username,
             'phone_number': user.phone_number,
             'sex': user.sex,
-            'otp': user.otp,
+            # 'otp': user.otp,
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -42,16 +74,41 @@ class RegisterBuyerView(RegisterOwnerView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        user.is_buyer = True
 
-        otp = generate_otp()
-        send_otp(user.email, otp)
+        # otp = generate_otp()
+        # send_otp(user.email, otp)
 
-        user.otp = otp
-        user.is_active = False
-        user.is_buyer = True
+        # user.otp = otp
+        # user.is_active = False
         user.save()
 
+
+# @api_view(['POST'])
+# def register_buyer_view(request):
+#     serializer = BuyerUserSerializer(data=request.data)
+#     if serializer.is_valid():
+#         user = serializer.save()
+#         user.is_buyer = True
+
+#         otp = generate_otp()
+#         send_otp(user.email, otp)
+
+#         user.otp = otp
+#         user.is_active = False
+#         user.is_buyer = True
+#         user.save()
+
+#         response_data = {
+#             'id': user.id,
+#             'full_name': user.full_name,
+#             'email': user.email,
+#             'username': user.username,
+#             'phone_number': user.phone_number,
+#             'sex': user.sex,
+#             'otp': user.otp,
+#         }
+#         return Response(response_data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyOTPView(generics.UpdateAPIView):
     serializer_class = OTPSerializer
@@ -63,7 +120,7 @@ class VerifyOTPView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         user = self.get_object()
         if user.is_active:
-            return Response({'status': 'failure', 'message': 'User has already been verified.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'failure', 'message': 'your account has already been verified.'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         otp = serializer.validated_data['otp']
@@ -73,7 +130,7 @@ class VerifyOTPView(generics.UpdateAPIView):
             user.save()
             send_welcome_email(user.email)
 
-            return Response({'status': 'success', 'message': 'your account is now verified'}, status=status.HTTP_200_OK)
+            return Response({'status': 'success', 'message': f'Thanks {user.full_name}, your account is now verified'}, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'failure', 'message': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 

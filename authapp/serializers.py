@@ -20,8 +20,8 @@ class OwnerUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OwnerUser
         fields = ('id', 'full_name', 'email', 'username',
-                  'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
-        read_only_fields = ('id', 'otp',)
+                  'phone_number', 'sex', 'password', 'confirm_password',)
+        read_only_fields = ('id',)
 
     def validate(self, attrs):
         if attrs.get('password') != attrs.get('confirm_password'):
@@ -35,12 +35,10 @@ class OwnerUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
-
-        if password != confirm_password:
-            raise serializers.ValidationError('password do not match')
-
         user = User.objects.create_user(
             **validated_data, password=password)
+        user.is_property_owner = True
+        user.save()
         return user
 
 
@@ -48,8 +46,14 @@ class BuyerUserSerializer(OwnerUserSerializer):
     class Meta:
         model = BuyerUser
         fields = ('id', 'full_name', 'email', 'username',
-                  'phone_number', 'sex', 'password', 'otp', 'confirm_password',)
-        read_only_fields = ('id', 'otp',)
+                  'phone_number', 'sex', 'password', 'confirm_password',)
+        read_only_fields = ('id',)
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.is_buyer = True
+        user.save()
+        return user
 
 
 class OTPSerializer(serializers.Serializer):
@@ -67,14 +71,17 @@ class LoginSerializer(serializers.Serializer):
         if email and password:
             user = authenticate(request=self.context.get(
                 'request'), email=email, password=password)
+            if user:
+                if not user.is_active:
+                    raise serializers.ValidationError(
+                        'your account is not activated')
+                attrs['user'] = user
 
-            if not user:
-                raise serializers.ValidationError('Invalid email or password')
+            else:
+                raise serializers.ValidationError('credentials incorrect')
         else:
             raise serializers.ValidationError(
                 'Email and password are required')
-
-        attrs['user'] = user
         return attrs
 
 
