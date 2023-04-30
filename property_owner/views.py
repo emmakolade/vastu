@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 
 
-# Owner Profile
+# OWNER PROFILE
+
 @swagger_auto_schema(method='GET',)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
