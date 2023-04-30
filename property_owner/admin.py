@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import PropertyListing, PropertyOwnerProfile
+
+admin.site.register(PropertyListing)
+admin.site.register(PropertyOwnerProfile)
