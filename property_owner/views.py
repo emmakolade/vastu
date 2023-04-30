@@ -1,7 +1,7 @@
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status
 from .models import PropertyOwnerProfile, PropertyListing
 from .serializers import PropertyLisitingSerializer, PropertyOwnerProfileSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +22,22 @@ def get_owner_profile(request):
 
     serializer = PropertyOwnerProfileSerializer(profile)
     return Response(serializer.data)
+
+
+@swagger_auto_schema(method='POST', request_body=PropertyOwnerProfileSerializer,)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_owner_profile(request):
+    try:
+        profile = PropertyOwnerProfile.objects.get(owner_user=request.user)
+        serializer = PropertyOwnerProfileSerializer(profile, data=request.data)
+    except PropertyOwnerProfile.DoesNotExist:
+        serializer = PropertyOwnerProfileSerializer(data=request.data)
+    if serializer.is_valid():
+        profile = serializer.save(owner_user=request.user)
+        return Response(PropertyOwnerProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(method='PUT', request_body=PropertyOwnerProfileSerializer,)
@@ -45,21 +61,6 @@ def edit_owner_profile(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@swagger_auto_schema(method='POST', request_body=PropertyOwnerProfileSerializer,)
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_owner_profile(request):
-    try:
-        profile = PropertyOwnerProfile.objects.get(owner_user=request.user)
-        serializer = PropertyOwnerProfileSerializer(profile, data=request.data)
-    except PropertyOwnerProfile.DoesNotExist:
-        serializer = PropertyOwnerProfileSerializer(data=request.data)
-    if serializer.is_valid():
-        profile = serializer.save(owner_user=request.user)
-        return Response(PropertyOwnerProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # PROPERTY LISTING
