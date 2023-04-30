@@ -60,14 +60,71 @@ def create_owner_profile(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def create_property(request):
-#     if not request.user.is_property_owner:
-#         return Response({'error': 'only property owners can create or add properties'}, status=status.HTTP_403_FORBIDDEN)
 
-#     owner_profile =
+# PROPERTY LISTING
 
+@swagger_auto_schema(method='POST', request_body=PropertyLisitingSerializer,)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_property(request):
+    if not request.user.is_property_owner:
+        return Response({'error': 'only property owners can create or add properties'}, status=status.HTTP_403_FORBIDDEN)
+
+    owner_profile = PropertyOwnerProfile.objects.get(owner_user=request.user)
+    serializer = PropertyLisitingSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(property_owner=owner_profile)
+        update_property_unit(owner_profile)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(method='GET',)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_all_properties(request):
+    # retrieve all properties of the current user
+    owner_profile = PropertyOwnerProfile.objects.get(owner_user=request.user)
+    properties = PropertyListing.objects.filter(property_owner=owner_profile)
+
+    serializer = PropertyLisitingSerializer(properties, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='PUT', request_body=PropertyLisitingSerializer,)
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_property(request, pk):
+    listing = PropertyListing.objects.get(pk=pk)
+    if listing.property_owner.owner_user != request.user:
+        return Response({'error': 'you can only update your own properties'}, status=status.HTTP_403_FORBIDDEN)
+
+    # update the property with the new data
+    serializer = PropertyLisitingSerializer(
+        listing, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_property(request, pk):
+    listing = PropertyListing.objects.get(pk=pk)
+    if listing.property_owner.owner_user != request.user:
+        return Response({'error': 'you can only delete your own properties.'}, status=status.HTTP_403_FORBIDDEN)
+
+    listing.delete()
+    update_property_unit(listing.property_owner)
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def update_property_unit(profile):
+    property_count = PropertyListing.objects.filter(
+        property_owner=profile).count()
+    profile.property_unit = property_count
+    profile.save()
 
 # class PropertyOwnerProfileView(generics.UpdateAPIView):
 #     serializer_class = PropertyOwnerProfileSerializer
@@ -89,4 +146,3 @@ def create_owner_profile(request):
 #         owner_profile_id = self.request.data.get('property_owner')
 #         owner_profile = PropertyOwnerProfile.objects.get(id=owner_profile_id)
 #         serializer.save(property_owner=owner_profile)
-

@@ -5,7 +5,7 @@ from django.conf import settings
 
 class PropertyOwnerProfile(models.Model):
     owner_user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile', primary_key=True)
     profile_picture = models.ImageField(upload_to="photos/", blank=True)
     bio = models.TextField(blank=True)
     address = models.CharField(max_length=300, blank=True)
@@ -37,7 +37,7 @@ class PropertyListing(models.Model):
         (VACANT, "Vacant"),
     ]
     property_owner = models.ForeignKey(
-        PropertyOwnerProfile, on_delete=models.CASCADE)
+        PropertyOwnerProfile, on_delete=models.CASCADE, related_name='properties')
     property_title = models.CharField(max_length=200)
     property_full_address = models.CharField(max_length=200)
     property_city = models.CharField(max_length=200)
@@ -60,6 +60,9 @@ class PropertyListing(models.Model):
     photo_6 = models.ImageField(upload_to='photos/', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "properties"
 
     def __str__(self):
         return self.property_title

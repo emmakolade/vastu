@@ -15,9 +15,9 @@ class PropertyOwnerProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PropertyOwnerProfile
-        fields = ('id', 'owner_user', 'full_name', 'email', 'username', 'phone_number', 'sex', 'profile_picture',
+        fields = ('owner_user', 'full_name', 'email', 'username', 'phone_number', 'sex', 'profile_picture',
                   'bio', 'address', 'property_unit', 'facebook_profile', 'twitter_profile', 'instagram_profile', 'full_name', 'email', 'username', 'phone_number', 'sex',)
-        read_only_fields = ('id', 'owner_user', 'email', 'username')
+        read_only_fields = ('owner_user', 'email', 'username', 'property_unit',)
 
     def update(self, instance, validated_data):
         owner_user_data = validated_data.pop('owner_user', None)
@@ -34,6 +34,8 @@ class PropertyOwnerProfileSerializer(serializers.ModelSerializer):
 
 
 class PropertyLisitingSerializer(serializers.ModelSerializer):
+    property_owner = serializers.ReadOnlyField(source='property_owner.id')
+
     class Meta:
         model = PropertyListing
         fields = '__all__'
