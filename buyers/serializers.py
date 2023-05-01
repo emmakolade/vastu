@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import BuyerProfile
+from .models import BuyerProfile, BuyerReview
 
 
 class BuyerProfileSerializer(serializers.ModelSerializer):
@@ -32,3 +32,13 @@ class BuyerProfileSerializer(serializers.ModelSerializer):
                 'sex', buyer_user.sex)
             buyer_user.save()
         return super().update(instance, validated_data)
+
+
+class BuyerReviewSerializer(serializers.ModelSerializer):
+    buyer_user = serializers.CharField(source='buyer_user.username', read_only=True)
+
+    class Meta:
+        model = BuyerReview
+        fields = ('buyer_user', 'property_listing',
+                  'comments', 'edited_comment', 'ratings', 'created_at',)
+        read_only_fields = ('buyer_user',)

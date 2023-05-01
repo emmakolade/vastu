@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .models import BuyerProfile
-from .serializers import BuyerProfileSerializer
+from .models import BuyerProfile, BuyerReview
+from .serializers import BuyerProfileSerializer, BuyerReviewSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 
@@ -54,3 +54,14 @@ def edit_buyer_profile(request):
 
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def buyer_review(request):
+    try:
+        review = request.user.buyer_user
+    except BuyerReview.DoesNotExist:
+        return Response({'detail': 'buyer not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = BuyerReviewSerializer(review, data=request.data, partial=True)
+    property
