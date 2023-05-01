@@ -13,7 +13,7 @@ vāstu(means dwelling or House) : is an API/app that allows property owners to l
 
 - Buyers Accounts: Allow users to create accounts, save their favorite properties, and receive alerts when new properties that meet their criteria are added to the database. - Halfly Done :neckbeard:
 
-- Reviews and Ratings: Allow buyers to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy.
+- Reviews and Ratings: Allow buyers to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy.Done :white_check_mark:
 
 - Communication: Implement a messaging system that allows buyers to communicate with property owners through the app.
 
