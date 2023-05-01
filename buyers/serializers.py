@@ -35,10 +35,11 @@ class BuyerProfileSerializer(serializers.ModelSerializer):
 
 
 class BuyerReviewSerializer(serializers.ModelSerializer):
-    buyer_user = serializers.CharField(source='buyer_user.username', read_only=True)
+    buyer_user = serializers.CharField(
+        source='buyer_user.username', read_only=True)
 
     class Meta:
         model = BuyerReview
-        fields = ('buyer_user', 'property_listing',
+        fields = ('id', 'buyer_user', 'property_listing',
                   'comments', 'edited_comment', 'ratings', 'created_at',)
-        read_only_fields = ('buyer_user',)
+        read_only_fields = ('id', 'buyer_user', 'property_listing',)

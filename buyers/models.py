@@ -26,13 +26,13 @@ class BuyerProfile(models.Model):
 
 class BuyerReview(models.Model):
     buyer_user = models.ForeignKey(
-        User, on_delete=models.DO_NOTHING,  primary_key=True)
+        User, on_delete=models.DO_NOTHING)
     property_listing = models.ForeignKey(
         PropertyListing, on_delete=models.CASCADE, related_name='reviews')
     comments = models.TextField(blank=True, null=True)
     edited_comment = models.BooleanField(default=False)
     ratings = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True)
+        validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True, default=0)
     created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

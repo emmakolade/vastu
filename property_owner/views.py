@@ -96,8 +96,8 @@ def list_all_properties(request):
 @swagger_auto_schema(method='PUT', request_body=PropertyLisitingSerializer,)
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_property(request, pk):
-    listing = PropertyListing.objects.get(pk=pk)
+def update_property(request, property_id):
+    listing = PropertyListing.objects.get(pk=property_id)
     if listing.property_owner.owner_user != request.user:
         return Response({'error': 'you can only update your own properties'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -112,8 +112,8 @@ def update_property(request, pk):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_property(request, pk):
-    listing = PropertyListing.objects.get(pk=pk)
+def delete_property(request, property_id):
+    listing = PropertyListing.objects.get(pk=property_id)
     if listing.property_owner.owner_user != request.user:
         return Response({'error': 'you can only delete your own properties.'}, status=status.HTTP_403_FORBIDDEN)
 

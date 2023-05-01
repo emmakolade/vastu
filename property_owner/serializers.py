@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import PropertyOwnerProfile, PropertyListing
-from authapp.models import OwnerUser
+from buyers.serializers import BuyerReviewSerializer
 
 
 class PropertyOwnerProfileSerializer(serializers.ModelSerializer):
@@ -17,7 +17,8 @@ class PropertyOwnerProfileSerializer(serializers.ModelSerializer):
         model = PropertyOwnerProfile
         fields = ('owner_user', 'full_name', 'email', 'username', 'phone_number', 'sex', 'profile_picture',
                   'bio', 'address', 'property_unit', 'facebook_profile', 'twitter_profile', 'instagram_profile', 'full_name', 'email', 'username', 'phone_number', 'sex',)
-        read_only_fields = ('owner_user', 'email', 'username', 'property_unit',)
+        read_only_fields = ('owner_user', 'email',
+                            'username', 'property_unit',)
 
     def update(self, instance, validated_data):
         owner_user_data = validated_data.pop('owner_user', None)
@@ -35,8 +36,13 @@ class PropertyOwnerProfileSerializer(serializers.ModelSerializer):
 
 class PropertyLisitingSerializer(serializers.ModelSerializer):
     property_owner = serializers.ReadOnlyField(source='property_owner.id')
+    reviews = BuyerReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = PropertyListing
-        fields = '__all__'
-        read_only_fields = ('id', 'property_owner',)
+        fields = ('id', 'property_owner', 'property_title', 'property_full_address', 'property_city',
+                  'property_state', 'property_zipcode', 'property_description', 'property_price',
+                  'num_of_bedrooms', 'num_of_bathrooms', 'square_ft', 'garage', 'property_status',
+                  'property_occupancy', 'photo_1', 'photo_2', 'photo_3', 'photo_4', 'photo_5',
+                  'photo_6', 'created_at', 'updated_at', 'reviews')
+        read_only_fields = ('id', 'property_owner', 'reviews')

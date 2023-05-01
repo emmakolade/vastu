@@ -8,16 +8,17 @@ urlpatterns = [
     path("profile/", get_owner_profile, name="owner-profile"),
     path("edit_profile/", edit_owner_profile, name="edit-profile"),
     path("create_property/", create_property, name="create-property"),
-    path("list_properties/", list_all_properties,
+    path("list_owner_properties/", list_all_properties,
          name="list-properties"),
-    path("update_property/<int:pk>/",
+
+    path("update_property/<int:property_id>/",
          update_property, name="update-property"),
-    path("delete_property<int:pk>/",
+    path("delete_property<int:property_id>/",
          delete_property, name="delete-property"),
-    
+
     path("all_properties/",
          property_list, name="all-properties"),
-    
-    
+
+
 
 ]

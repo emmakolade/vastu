@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import BuyerProfile, BuyerReview
 from .serializers import BuyerProfileSerializer, BuyerReviewSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
 
+
+# BUYER PROFILE
 
 @swagger_auto_schema(method='GET',)
 @api_view(['GET'])
@@ -45,9 +47,10 @@ def edit_buyer_profile(request):
         profile = request.user.buyer_profile
     except BuyerProfile.DoesNotExist:
         return Response({'detail': 'profile not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = BuyerProfileSerializer(profile, data=request.data, partial=True)
-    
+
+    serializer = BuyerProfileSerializer(
+        profile, data=request.data, partial=True)
+
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -56,12 +59,50 @@ def edit_buyer_profile(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-def buyer_review(request):
+# REVIEW
+
+@swagger_auto_schema(method='POST', request_body=BuyerReviewSerializer,)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def buyer_review(request, property_id):
+    if request.method == 'GET':
+        reviews = BuyerReview.objects.filter(property_listing_id=property_id)
+        serializer = BuyerReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = BuyerReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(property_listing_id=property_id,
+                            buyer_user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(method='PUT', request_body=BuyerReviewSerializer,)
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def edit_buyer_review(request, review_id):
     try:
-        review = request.user.buyer_user
+        review = BuyerReview.objects.get(pk=review_id, buyer_user=request.user)
     except BuyerReview.DoesNotExist:
-        return Response({'detail': 'buyer not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     serializer = BuyerReviewSerializer(review, data=request.data, partial=True)
-    property
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_buyer_review(request, review_id):
+    try:
+        review = BuyerReview.objects.get(pk=review_id)
+    except BuyerReview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if review.buyer_user != request.user:
+        return Response({'error': 'you can only delete your comment.'}, status=status.HTTP_403_FORBIDDEN)
+    review.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
