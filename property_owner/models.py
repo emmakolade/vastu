@@ -1,5 +1,4 @@
 from django.db import models
-from authapp.models import OwnerUser
 from django.conf import settings
 
 
@@ -19,7 +18,7 @@ class PropertyOwnerProfile(models.Model):
         verbose_name_plural = "Owner Profiles"
 
     def __str__(self):
-        return f"{self.full_name} profile"
+        return f"{self.owner_user.full_name} profile"
 
 
 class PropertyListing(models.Model):
