@@ -11,9 +11,9 @@ vāstu(means dwelling or House) : is an API/app that allows property owners to l
 - Property Management: Allow property owners to create listings for their properties, manage their listings, and update information such as price and availability. - Done :white_check_mark:
 
 
-- Buyers Accounts: Allow users to create accounts, save their favorite properties, and receive alerts when new properties that meet their criteria are added to the database. - Halfly Done :neckbeard:
+- Buyers : Allow buyers save their favorite properties, and receive email alerts when new properties that meet their criteria are added to the database. - Halfly Done :neckbeard:
 
-- Reviews and Ratings: Allow buyers to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy.
+- Reviews and Ratings: Allow buyers to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy. Done :white_check_mark:
 
 - Communication: Implement a messaging system that allows buyers to communicate with property owners through the app.
 
@@ -23,7 +23,7 @@ vāstu(means dwelling or House) : is an API/app that allows property owners to l
 
 - Machine Learning-based Property Recommendations: Use machine learning algorithms to recommend properties to users based on their search history, preferences, and behavior. This can help users find properties that meet their specific needs and preferences.
 
-- Multi-language Support: Provide support for multiple languages, so that users from different regions and countries can use the app in their preferred language.
+- Multi-language Support: Provide support for multiple languages, so that users from different regions and countries can use the app in their preferred language(not neccessary for now)
 
 - Integration with Social Media: Allow users to share their favorite properties on social media platforms such as Facebook, Twitter, and Instagram. This can help increase the visibility of the properties and attract more potential buyers or renters.
 
