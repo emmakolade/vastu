@@ -6,6 +6,9 @@ from .serializers import BuyerProfileSerializer, BuyerReviewSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
 
+from property_owner.models import PropertyListing
+from property_owner.serializers import PropertyLisitingSerializer
+
 
 # BUYER PROFILE
 
@@ -86,7 +89,7 @@ def edit_buyer_review(request, review_id):
         review = BuyerReview.objects.get(pk=review_id, buyer_user=request.user)
     except BuyerReview.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
     serializer = BuyerReviewSerializer(review, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
@@ -106,3 +109,32 @@ def delete_buyer_review(request, review_id):
         return Response({'error': 'you can only delete your comment.'}, status=status.HTTP_403_FORBIDDEN)
     review.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+# SAVE, REMOVE, PROPERTY
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def toggle_saved_property(request, property_id):
+    try:
+        property_listing = PropertyListing.objects.get(pk=property_id)
+    except PropertyListing.DoesNotExist:
+        return Response({'error': 'Property not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    buyer_profile = request.user.buyer_profile
+    if request.method == 'POST':
+        buyer_profile.saved_properties.add(property_listing)
+        return Response({'message': 'property added to saved list'})
+
+    elif request.method == 'DELETE':
+        buyer_profile.saved_properties.remove(property_listing)
+        return Response({'message': 'property removed from saved list'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def saved_properties(request):
+    buyer_profile = request.user.buyer_profile
+    saved_properties = buyer_profile.saved_properties.all()
+    serializer = PropertyLisitingSerializer(saved_properties, many=True)
+    return Response(serializer.data)
