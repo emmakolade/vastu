@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import BuyerProfile, BuyerReview
 from .serializers import BuyerProfileSerializer, BuyerReviewSerializer
+from .helpers import update_notification_preferences
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from drf_yasg.utils import swagger_auto_schema
 
@@ -110,8 +111,8 @@ def delete_buyer_review(request, review_id):
     review.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
-# SAVE, REMOVE, PROPERTY
 
+# SAVE, REMOVE, PROPERTY
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -124,10 +125,12 @@ def toggle_saved_property(request, property_id):
     buyer_profile = request.user.buyer_profile
     if request.method == 'POST':
         buyer_profile.saved_properties.add(property_listing)
+        update_notification_preferences(buyer_profile)
         return Response({'message': 'property added to saved list'})
 
     elif request.method == 'DELETE':
         buyer_profile.saved_properties.remove(property_listing)
+        update_notification_preferences(buyer_profile)
         return Response({'message': 'property removed from saved list'})
 
 

@@ -11,7 +11,7 @@ vāstu(means dwelling or House) : is an API/app that allows property owners to l
 - Property Management: Allow property owners to create listings for their properties, manage their listings, and update information such as price and availability. - Done :heavy_check_mark:
 
 
-- Buyers : Allow buyers save their favorite properties, and receive  alerts(use CELERY to scedule) when new properties that meet their criteria are added to the database. - Halfly Done :neckbeard:
+- Buyers : Allow buyers save their favorite properties, and receive  alerts(use CELERY to scedule) when new properties that meet their criteria are added to the database. - Halfly Done / Ongoing :neckbeard: :on:
 
 - Reviews and Ratings: Allow buyers to leave reviews and ratings for properties they have rented or purchased. This can help other users make informed decisions about which properties to rent or buy. Done :heavy_check_mark:
 
